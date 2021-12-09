@@ -15,12 +15,16 @@ func Main() {
 	numberOfResquest := 10000
 
 	queueChan := make(chan int, numberOfResquest)
+	numberOfMaxResquest := 5
+	doneChan := make(chan string)
 
-	for i := 1; i <= 5; i++ {
+	for i := 1; i <= numberOfMaxResquest; i++ {
 		go func(name string) {
 			for v := range queueChan {
 				crawler(name, v)
 			}
+			fmt.Printf("done channel %s \n", name)
+			doneChan <- "done"
 		}(fmt.Sprintf("%d", i))
 	}
 
@@ -29,4 +33,8 @@ func Main() {
 	}
 
 	close(queueChan)
+
+	for i := 1; i <= numberOfMaxResquest; i++ {
+		<-doneChan
+	}
 }
